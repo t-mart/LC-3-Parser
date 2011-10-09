@@ -1,0 +1,22 @@
+= LC-3 Parser
+
+== CS2110 Fall 2011 Homework 7
+
+The overall objective of this assignment is for you to write a substantial
+assembly language program that includes writing recursive subroutines.
+
+The particular program that you will write is what is known as a recursive
+descent parser. At the most basic level a parser is a program that can read
+some language and determine if the language read follows the rules of the
+grammar of the language.  Parsers are at the heart of assemblers and compilers.
+In those applications parsers not only check that the language follows the
+rules of the grammar but can build a data structure that represents what the
+code is supposed to do. For this assignment the parser will be fairly simple
+and will simply tell you if the submitted language is legal per the grammar.
+
+Read the pdf for more details.
+
+== Installation
+
+  git clone git://github.com/reverebeer/LC-3-Parser
+  cd ~/LC-3-Parser
