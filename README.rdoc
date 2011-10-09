@@ -14,7 +14,7 @@ rules of the grammar but can build a data structure that represents what the
 code is supposed to do. For this assignment the parser will be fairly simple
 and will simply tell you if the submitted language is legal per the grammar.
 
-Read the pdf for more details.
+Read the README.pdf for more details.
 
 == Installation
 
