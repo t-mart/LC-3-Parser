@@ -63,6 +63,11 @@ namespace :asm do
     sh "simp #{obj}"
   end
 
+  desc "run with simpl"
+  task :simp => obj + sym do
+    sh "simpl #{obj}"
+  end
+
   desc "run with complx"
   task :complx => obj + sym do
     sh "complx #{obj}"
