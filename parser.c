@@ -79,13 +79,14 @@ int main()
     if(isForm() && s[ptr]=='\n') 
     {
         printf("Valid 'well formed form' found\n");
+        return 0;
     }
     else
     {
         printf("Invalid 'well formed form'\n");
+        return -1;
     }
 
-    return 0;
 }
 
 
