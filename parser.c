@@ -59,6 +59,8 @@ int isForm();
 char buffer[80];
 int ptr;
 
+char *s;
+
 int main()
 {
     printf("Enter a candidate well-formed form: ");
@@ -72,9 +74,9 @@ int main()
 	All you need to do is read characters into a buffer until the user types 
 	enter and then process the characters in the buffer.
 	*/	
-    fgets(buffer, 80, stdin);
+    s = fgets(buffer, 80, stdin);
     ptr = 0;
-    if(isForm() && buffer[ptr]=='\n') 
+    if(isForm() && s[ptr]=='\n') 
     {
         printf("Valid 'well formed form' found\n");
     }
@@ -90,7 +92,7 @@ int main()
  
 int isName()
 {
-    if(buffer[ptr] >= 'a' && buffer[ptr] <= 'z')
+    if(s[ptr] >= 'a' && s[ptr] <= 'z')
     {
         ptr++;
         return TRUE;
@@ -100,7 +102,7 @@ int isName()
 
 int isN()
 {
-    if(buffer[ptr] == 'N')
+    if(s[ptr] == 'N')
     {
         ptr++;
         return TRUE;
@@ -110,7 +112,7 @@ int isN()
 
 int isBinaryOperator()
 {
-    if(buffer[ptr] >= 'A' && buffer[ptr] <= 'D')
+    if(s[ptr] >= 'A' && s[ptr] <= 'D')
     {
         ptr++;
         return TRUE;
