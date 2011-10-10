@@ -14,14 +14,16 @@ namespace :c do
   src = FileList['*.c']
   obj = src.ext('o')
 
+  flags = '-Wall -O2 -std=c99 -pedantic -Werror'
+
   #to make any .o file, you need it's .c file, and then compile
   rule '.o' => '.c' do |t|
-    sh "gcc -c -o #{t.name} #{t.source}"
+    sh "gcc -c -o #{t.name} #{t.source} #{flags}"
   end
 
   #to make parser, you need all the obj files, then link
   file "parser" => obj do
-    sh "gcc -o parser #{obj}"
+    sh "gcc -o parser #{obj} #{flags}"
   end
 
   desc "build parser.c into parser.o"
