@@ -7,7 +7,7 @@ CLEAN.include('*.o')
 CLOBBER.include('parser','parser.obj', 'parser.sym')
 
 #default task when just running 'rake'
-task :default => 'asm:complx'
+task :default => 'asm:simpterm'
 
 namespace :c do
 
