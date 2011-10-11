@@ -57,9 +57,6 @@ namespace :asm do
     sh "lc3as #{t.source}"
   end
 
-  desc "assemble parser"
-  task :assemble => obj + sym
-
   desc "run with simp"
   task :simp => obj + sym do
     sh "simp #{obj}"
@@ -78,5 +75,10 @@ namespace :asm do
   desc "run with complx"
   task :complx => src do # using obj for complx is unsupported, use .asm instead
     sh "complx #{obj}"
+  end
+
+  desc "run test.rb"
+  task :test => obj + sym do
+    sh "ruby test.rb"
   end
 end
