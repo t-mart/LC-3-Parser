@@ -1,3 +1,5 @@
+require 'rubygems'
+gem 'minitest' #ensure we're using the gem, not the builtin
 require 'minitest/autorun'
 
 class TestParser < MiniTest::Unit::TestCase
