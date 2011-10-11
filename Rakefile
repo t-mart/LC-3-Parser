@@ -65,6 +65,11 @@ namespace :asm do
     sh "simp #{obj}"
   end
 
+  desc "run with simp, outputting to terminal"
+  task :simpterm => obj + sym do
+    sh "simp -f #{obj}"
+  end
+
   desc "run with simpl"
   task :simp => obj + sym do
     sh "simpl #{obj}"
