@@ -11,6 +11,7 @@ PROMPT .STRINGZ "Enter a candidate form: "
 BUFFER_ADDR .FILL x4000
 NEWLINE .FILL xFFF6 ;negated char code for easy recognition
 TEST_FORM .STRINGZ ""
+INVALID_STRING .STRINGZ "Invalid"
 
 ;show prompt
 GET_CANDIDATE
@@ -59,6 +60,9 @@ PROCESS_CANDIDATE
 ;	
 ;<Subroutine Label Goes Here (without semicolon!)
 	; your code here
+
+LEA R0, INVALID_STRING
+PUTS
 
 HALT
 .end
