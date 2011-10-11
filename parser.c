@@ -91,16 +91,18 @@ int main(int argc, char *argv[])
       } else {
         printf("Valid 'well formed form' found\n");
       }
+        return 0;
     }
     else
     {
       if (argc > 1) {
         printf("0\n");
+        return -1;
       } else {
         printf("Invalid 'well formed form'\n");
+        return 0;
       }
     }
-        return 0;
 }
 
 
