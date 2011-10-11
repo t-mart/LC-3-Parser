@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #define TRUE 1
 #define FALSE 0
@@ -61,8 +62,14 @@ int ptr;
 
 char *s;
 
-int main()
+char nl[] = "\n";
+
+int main(int argc, char *argv[])
 {
+  if (argc > 1) {
+    s = strcat(argv[1], nl);
+  } else {  
+
     printf("Enter a candidate well-formed form: ");
 	/*
 	The fgets function below reads in as many as 80-1 characters and then adds
@@ -75,18 +82,25 @@ int main()
 	enter and then process the characters in the buffer.
 	*/	
     s = fgets(buffer, 80, stdin);
+  }
     ptr = 0;
     if(isForm() && s[ptr]=='\n') 
     {
+      if (argc > 1) {
+        printf("1\n");
+      } else {
         printf("Valid 'well formed form' found\n");
-        return 0;
+      }
     }
     else
     {
+      if (argc > 1) {
+        printf("0\n");
+      } else {
         printf("Invalid 'well formed form'\n");
-        return -1;
+      }
     }
-
+        return 0;
 }
 
 
