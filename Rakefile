@@ -74,7 +74,7 @@ namespace :asm do
 
   desc "run with complx"
   task :complx => src do # using obj for complx is unsupported, use .asm instead
-    sh "complx #{obj}"
+    sh "complx #{src}"
   end
 
   desc "run test.rb"
