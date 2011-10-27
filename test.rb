@@ -60,4 +60,61 @@ class TestParser < MiniTest::Unit::TestCase
     form = 'Nq'
     assert_equal c_parse(form), asm_parse(form)
   end
+
+  #sloppy, i know, to just label test_number, but there should be an easier way
+  #to do this....i prolly just don't know it yet
+  def test_0
+    form = 'a'
+    assert_equal c_parse(form), asm_parse(form)
+  end
+
+  def test_1
+    form = 'b'
+    assert_equal c_parse(form), asm_parse(form)
+  end
+
+  def test_2
+    form = 'Nd'
+    assert_equal c_parse(form), asm_parse(form)
+  end
+
+  def test_3
+    form = 'Bxy'
+    assert_equal c_parse(form), asm_parse(form)
+  end
+
+  def test_4
+    form = 'CNdApq'
+    assert_equal c_parse(form), asm_parse(form)
+  end
+
+  def test_5
+    form = 'DBpcCrNt'
+    assert_equal c_parse(form), asm_parse(form)
+  end
+
+  def test_6
+    form = 'B1y'
+    assert_equal c_parse(form), asm_parse(form)
+  end
+
+  def test_7
+    form = '!'
+    assert_equal c_parse(form), asm_parse(form)
+  end
+
+  def test_8
+    form = 'NNNNNN'
+    assert_equal c_parse(form), asm_parse(form)
+  end
+
+  def test_9
+    form = 'B a'
+    assert_equal c_parse(form), asm_parse(form)
+  end
+
+  def test_10
+    form = 'hello world!'
+    assert_equal c_parse(form), asm_parse(form)
+  end
 end
