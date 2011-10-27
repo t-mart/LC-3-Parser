@@ -1,7 +1,7 @@
 ;===========================================================================
 ;  parser.asm
 ;  
-;  an LC-3 Recursive Decent Parse
+;  an LC-3 Recursive Decent Parser
 ;
 ;  by Tim Martin
 ;  902 396 824
@@ -10,9 +10,7 @@
 ;===========================================================================
 
 .orig x3000
-MAIN
-
-BR GET_CANDIDATE
+BR CODE
 
 ;constants
 PROMPT .STRINGZ "Enter a candidate form: "
@@ -40,7 +38,7 @@ FALSE .FILL 0
 TRUE .FILL 1
 
 ;show prompt
-GET_CANDIDATE
+CODE
 LD R1, BUFFER_ADDR ;acts a a pointer to the current char to save
 LD R3, INPUT_LIMIT ;our counter to make sure we're not grabbing too many chars
 LD R0, TEST_FORM
@@ -81,243 +79,267 @@ STR R0, R1, 0
 PROCESS_CANDIDATE
 
 LD R6, STACK_START
-LD R0, BUFFER_ADDR ;r0 is the address of the char
-LDR R1, R0, 0 ;r1 is that char
+LD R4, BUFFER_ADDR ;r0 is the address of the char
 
-JSR ISFORM
+JSR IS_FORM
 
-ADD R2, R2, 0
-BRP VALID
-INVALID_FORM
-LEA R0, INVALID_STRING
-PUTS
-BR EXIT
+LDR R0, R6, 0
+BRZ INVALID_FORM
 
-VALID
+LDR R0, R4, 0
+LD R1, NEWLINE
+ADD R0, R0, R1
+BRNP INVALID_FORM
+
 LEA R0, VALID_STRING
+BR MSG_LOADED
+
+INVALID_FORM
+LEA  R0, INVALID_STRING
+
+MSG_LOADED
 PUTS
 
-EXIT
 HALT
 
-;  ISFORM
-; ===========================================================================
-;  determines if the current form is valid
-;  the whole kitten kaboodle
-;  <form> ::= <name> | N<form> | <BinaryOperator><form><form>
-;  <BinaryOperator> ::= A | B | C | D
-;  <name> ::= a | b | c | ... | x | y | z
+;###########################################################################
+;  IS_NAME
 ;
+;  returns 0 if buf[ptr] is not a name ('a'-'z'), and 1 if so
 ;
-;  PRE              ->          POST
-;  R0: R0 before -> R0 after
-;  R1: R1 before -> R1 after
-;  R2: R2 before -> R2 after
-;  R3: R3 before -> R3 after
-;  R4: R4 before -> R4 after
-;  R5: R5 before -> R5 after
-;  R6: R6 before -> R6 after
-;  R7: R7 before -> R7 after
-;============================================================================
+;  Preconditions:
+;  buf[ptr] is the value to be evaluated
+;
+;  Postconditions:
+;  top of stack equals 0 or 1. if 1, ptr incremented
+;###########################################################################
+IS_NAME
+LDR R0, R4, 0
 
-ISFORM
+LD R1, NAME_FIRST
+ADD R1, R0, R1
+BRN NOT_NAME
 
-;set up stack
-ADD R6, R6, -1 ;allocate for ret val
+LD R1, NAME_LAST
+ADD R1, R0, R1
+BRP NOT_NAME
 
-ADD R6, R6, -1  ;allocate for ret addr
-STR R7, R6, 0 ;push ret addr
+LD R0, ONE
+ADD R4, R4, 1
+BR RETURN_NAME
 
-ADD R6, R6, -1 ;allocate for fp
-STR R5, R6, 0 ;push fp
+NOT_NAME
+LD R0, ZERO
 
-ADD R5, R6, 0 ;make new fp (which is same as sp bc there are no locals)
+RETURN_NAME
+;push name_truth
+ADD R6, R6, -1
+STR  R0, R6, 0
 
-;determine if name form
-LD R2, NAME_FIRST
-ADD R2, R2, R1
-BRN TEST_N_FORM
+RET
 
-LD R2, NAME_LAST
-ADD R2, R2, R1
-BRP TEST_N_FORM
+;###########################################################################
+;  IS_N
+;
+;  returns 0 if buf[ptr] is not an 'N', and 1 if so
+;
+;  Preconditions:
+;  buf[ptr] is the value to be evaluated
+;
+;  Postconditions:
+;  top of stack equals 0 or 1. if 1, ptr incremented
+;###########################################################################
+IS_N
+LDR R0, R4, 0
 
-BR GOOD_FORM
+LD R1, N
+ADD R1, R0, R1
+BRNP NOT_N
 
-;determine if N form
-TEST_N_FORM
-LD R2, N
-ADD R2, R2, R1
-BRNP TEST_BIN_OP_FORM
+LD R0, ONE
+ADD R4, R4, 1
+BR RETURN_N
 
-ADD R0, R0, 1 ;increment buffer addr
-LDR R1, R0, 0 ;set r1 to next char
+NOT_N
+LD R0, ZERO
 
-JSR ISFORM
-ADD R2, R2, -1
-BRN TEST_BIN_OP_FORM
+RETURN_N
+;push n truth
+ADD R6, R6, -1
+STR  R0, R6, 0
 
-BR GOOD_FORM
+RET
 
-;determine if binary operator form
-TEST_BIN_OP_FORM
-LD R2, BIN_OP_FIRST
-ADD R2, R2, R1
-BRN NOT_FORM
+;###########################################################################
+;  IS_BIN_OP
+;
+;  returns 0 if buf[ptr] is not a binary operator ('A'-'D'), and 1 if so
+;
+;  Preconditions:
+;  buf[ptr] is the value to be evaluated
+;
+;  Postconditions:
+;  top of stack equals 0 or 1. if 1, ptr incremented
+;###########################################################################
+IS_BIN_OP
+LDR R0, R4, 0
 
-LD R2, BIN_OP_LAST
-ADD R2, R2, R1
-BRP NOT_FORM
+LD R1, BIN_OP_FIRST
+ADD R1, R0, R1
+BRN NOT_BIN_OP
 
-;determine form 1
-ADD R0, R0, 1 ;increment buffer addr
-LDR R1, R0, 0 ;set r1 to next char
+LD R1, BIN_OP_LAST
+ADD R1, R0, R1
+BRP NOT_BIN_OP
 
-JSR ISFORM
-ADD R2, R2, -1
-BRN NOT_FORM
+LD R0, ONE
+ADD R4, R4, 1
+BR RETURN_BIN_OP
 
-;determine form 2
-ADD R0, R0, 1 ;increment buffer addr
-LDR R1, R0, 0 ;set r1 to next char
+NOT_BIN_OP
+LD R0, ZERO
 
-JSR ISFORM
-ADD R2, R2, -1
-BRN NOT_FORM
+RETURN_BIN_OP
+;push bin op truth
+ADD R6, R6, -1
+STR  R0, R6, 0
+
+RET
+
+;###########################################################################
+;  IS_FORM
+;
+;  returns 0 if buf[ptr] is not the start of a form, 1 otherwise
+;
+;  Preconditions:
+;  buf[ptr] starts a candidate form
+;
+;  Postconditions:
+;  top of stack is 0 or 1
+;###########################################################################
+IS_FORM
+;push ret val and ret addr
+ADD R6, R6, -2
+STR  R7, R6, 0
+
+;push old fp
+ADD R6, R6, -1
+STR  R5, R6, 0
+
+;set new fp
+ADD R5, R6, -1
+
+;local vars
+;truth  IS_NAME       IS_N          IS_BIN_OP
+;-----------------------------------------------------------
+;1      X             X             form B truth
+;0      X             form truth    form A truth 
+
+;allocate truth 0
+ADD R6, R6, -1
+;allocate truth 1
+ADD R6, R6, -1
+
+;code
+; {
+;     if(isName() || 
+;        (isN() && isForm()) ||
+;        (isBinaryOperator() && isForm() && isForm()))
+;     {
+;         return TRUE;
+;     }
+;     else
+;     {
+;         return FALSE;
+;     }
 
 
-GOOD_FORM
-LD R2, TRUE
-ADD R0, R0, 1 ;increment buffer addr
-LDR R1, R0, 0 ;set r1 to next char
 
-STR R2, R5, 2 ;copy truth into retval
+;=======================TRY IS_NAME=============================
+JSR IS_NAME
+;pop is name truth
+LDR  R0, R6, 0
+ADD R6, R6, 1
+;is it T or F?
+ADD R0, R0, 0
+BRZ TRY_IS_N
 
-LDR R5, R6, 0 ;pop old fp
+LD R0, ONE
+BR RESOLVE_IS_FORM
+
+;=======================TRY IS_N================================
+TRY_IS_N
+JSR IS_N
+;pop is n truth
+LDR  R0, R6, 0
+ADD R6, R6, 1
+;is it T or F?
+ADD R0, R0, 0
+BRZ TRY_IS_BIN_OP
+
+;store n truth in at fp
+STR R0, R5, 0
+
+JSR IS_FORM
+;pop form truth
+LDR  R0, R6, 0
+ADD R6, R6, 1
+;is it T or F?
+ADD R0, R0, 0
+BRZ TRY_IS_BIN_OP
+
+LD R0, ONE
+BR RESOLVE_IS_FORM
+
+;=======================TRY IS_BIN_OP===========================
+TRY_IS_BIN_OP
+JSR IS_BIN_OP
+;pop is bin op truth
+LDR  R0, R6, 0
+ADD R6, R6, 1
+;is it T or F?
+ADD R0, R0, 0
+BRZ RESOLVE_IS_FORM
+
+;store n truth in at fp
+STR R0, R5, 0
+
+JSR IS_FORM
+;pop form A truth
+LDR  R0, R6, 0
+ADD R6, R6, 1
+;is it T or F?
+ADD R0, R0, 0
+BRZ RESOLVE_IS_FORM
+
+;store n truth in at fp
+STR R0, R5, -1
+
+JSR IS_FORM
+;pop form A truth
+LDR  R0, R6, 0
+ADD R6, R6, 1
+;is it T or F?
+ADD R0, R0, 0
+BRZ RESOLVE_IS_FORM
+
+LD R0, ONE
+BR RESOLVE_IS_FORM
+
+RESOLVE_IS_FORM
+STR R0, R5, 3 ;store ret val
+
+ADD R6, R5, 1 ;pop old locals
+
+;restore old fp
+LDR R5, R6, 0
 ADD R6, R6, 1
 
-LDR R7, R6, 0 ;pop old ret addr
-ADD R6, R6, 1
+;pop ret addr
+LDR  R7, R6, 0
+ADD R6, R6, 1 ;sp is now at ret val
 
-ADD R6, R6, 1
+;and ret
 RET
 
-NOT_FORM
-LD R2, FALSE
-LEA R7, INVALID_FORM ;YOU....SHALL....NOT.....PASS
-RET
-
-
-;  ISNAME
-; ===========================================================================
-;  determines if the current char is name
-;  <name>
-;
-;  PRE              ->          POST
-;  R0: buffer addr -> buffer addr +1
-;  R1: buffer char -> buffer char +1
-;  R2: R2 before -> truth value of buffer char being a name form
-;============================================================================
-ISNAME
-;determine name
-LD R2, NAME_FIRST
-ADD R2, R2, R1
-BRN ISNAME_FALSE
-
-LD R2, NAME_LAST
-ADD R2, R2, R1
-BRP ISNAME_FALSE
-
-LD R2, TRUE
-ADD R0, R0, 1 ;increment buffer addr
-LDR R1, R0, 0 ;set r1 to next char
-RET
-
-ISNAME_FALSE
-LD R2, FALSE
-ADD R0, R0, 1 ;increment buffer addr
-LDR R1, R0, 0 ;set r1 to next char
-RET
-
-;  ISN
-; ===========================================================================
-;  determines if the current char is an N form
-;  N<form>
-;
-;  PRE              ->          POST
-;  R0: buffer addr -> buffer addr +1
-;  R1: buffer char -> buffer char +1
-;  R2: R2 before -> truth value of buffer char being a N form
-;============================================================================
-ISN
-;determine N
-LD R2, N
-ADD R2, R2, R1
-BRNP ISN_FALSE
-
-;determine form
-ADD R0, R0, 1 ;increment buffer addr
-LDR R1, R0, 0 ;set r1 to next char
-
-JSR ISFORM
-ADD R2, R2, #-1
-BRN ISN_FALSE
-
-LD R2, TRUE
-ADD R0, R0, 1 ;increment buffer addr
-LDR R1, R0, 0 ;set r1 to next char
-RET
-
-ISN_FALSE
-LD R2, FALSE
-ADD R0, R0, 1 ;increment buffer addr
-LDR R1, R0, 0 ;set r1 to next char
-RET
-
-;  ISBINOP
-; ===========================================================================
-;  determines if the current char is a binary operator
-;  <BinaryOperator><form><form>
-;
-;  PRE              ->          POST
-;  R0: buffer addr -> buffer addr +1
-;  R1: buffer char -> buffer char +1
-;  R2: R2 before -> truth value of buffer char being a binary operator form
-;============================================================================
-ISBINOP
-;determine bin op
-LD R2, BIN_OP_FIRST
-ADD R2, R2, R1
-BRN ISBINOP_FALSE
-
-LD R2, BIN_OP_LAST
-ADD R2, R2, R1
-BRP ISBINOP_FALSE
-
-;determine form 1
-ADD R0, R0, 1 ;increment buffer addr
-LDR R1, R0, 0 ;set r1 to next char
-
-JSR ISFORM
-ADD R2, R2, -1
-BRN ISBINOP_FALSE
-
-;determine form 2
-ADD R0, R0, 1 ;increment buffer addr
-LDR R1, R0, 0 ;set r1 to next char
-
-JSR ISFORM
-ADD R2, R2, -1
-BRN ISBINOP_FALSE
-
-LD R2, TRUE
-ADD R0, R0, 1 ;increment buffer addr
-LDR R1, R0, 0 ;set r1 to next char
-RET
-
-ISBINOP_FALSE
-LD R2, FALSE
-ADD R0, R0, 1 ;increment buffer addr
-LDR R1, R0, 0 ;set r1 to next char
-RET
-.end
+.END
